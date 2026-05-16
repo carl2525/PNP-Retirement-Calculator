@@ -48,8 +48,8 @@ export default function App() {
   const [inputMode, setInputMode] = useState<'duration' | 'dates'>('duration');
   
   // Manual Duration State
-  const [manualYears, setManualYears] = useState<number>(0);
-  const [manualMonths, setManualMonths] = useState<number>(0);
+  const [manualYears, setManualYears] = useState<number | ''>(0);
+  const [manualMonths, setManualMonths] = useState<number | ''>(0);
   const [manualRetYear, setManualRetYear] = useState<number>(2026);
 
   // Date State
@@ -58,7 +58,7 @@ export default function App() {
   const [retirementTargetDate, setRetirementTargetDate] = useState<string>('');
   
   const [retirementType, setRetirementType] = useState<'compulsory' | 'voluntary'>('compulsory');
-  const [leaveCredits, setLeaveCredits] = useState<number>(0);
+  const [leaveCredits, setLeaveCredits] = useState<number | ''>(0);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   // Derived Dates (Auto Mode)
@@ -79,7 +79,7 @@ export default function App() {
 
   const serviceDuration = useMemo(() => {
     if (inputMode === 'duration') {
-      return { years: manualYears, months: manualMonths, days: 0 };
+      return { years: Number(manualYears || 0), months: Number(manualMonths || 0), days: 0 };
     }
     const start = new Date(entranceDate);
     const end = effectiveRetirementDate;
@@ -105,6 +105,7 @@ export default function App() {
 
   const calculations = useMemo(() => {
     const retirementYear = manualRetYear;
+    const leaveVal = Number(leaveCredits || 0);
     
     // Select correct MBP (Monthly Base Pay) from tranches
     // Baseline is now 2026 as 2024/25 are obsolete
@@ -140,7 +141,7 @@ export default function App() {
     const monthlyPension = serviceDuration.years >= 20 ? totalPensionableBase * pensionPercentage : 0;
     const lumpSum36Months = monthlyPension * 36;
     
-    const terminalLeavePay = totalPensionableBase * Math.min(leaveCredits, maxLeaveCredits) * 0.0481927;
+    const terminalLeavePay = totalPensionableBase * Math.min(leaveVal, maxLeaveCredits) * 0.0481927;
     const totalRetirementPackage = lumpSum36Months + terminalLeavePay;
 
     return {
@@ -359,7 +360,11 @@ export default function App() {
                     <input 
                       type="number"
                       value={manualYears}
-                      onChange={(e) => setManualYears(Math.max(0, parseInt(e.target.value) || 0))}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setManualYears(val === '' ? '' : Math.max(0, parseInt(val) || 0));
+                      }}
                       className="theme-input font-bold"
                     />
                   </div>
@@ -369,7 +374,11 @@ export default function App() {
                       type="number"
                       value={manualMonths}
                       max="11"
-                      onChange={(e) => setManualMonths(Math.min(11, Math.max(0, parseInt(e.target.value) || 0)))}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setManualMonths(val === '' ? '' : Math.min(11, Math.max(0, parseInt(val) || 0)));
+                      }}
                       className="theme-input font-bold"
                     />
                   </div>
@@ -479,7 +488,11 @@ export default function App() {
                   <input 
                     type="number"
                     value={leaveCredits}
-                    onChange={(e) => setLeaveCredits(Math.min(maxLeaveCredits, Math.max(0, parseInt(e.target.value) || 0)))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLeaveCredits(val === '' ? '' : Math.min(maxLeaveCredits, Math.max(0, parseInt(val) || 0)));
+                    }}
                     className="theme-input pr-24 font-mono font-bold"
                     placeholder="e.g. 300"
                   />
