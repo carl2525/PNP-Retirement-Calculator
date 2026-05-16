@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-pnp-blue: #002D62;
+  --color-pnp-gold: #C5A039;
+  --color-pnp-red: #CE1126;
+}
+
+body {
+  @apply bg-[#F4F7FA] text-slate-900 font-sans antialiased;
+}
+
+.theme-card {
+  @apply bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-t-4 border-pnp-blue p-6 transition-all relative overflow-hidden;
+}
+
+.theme-card::after {
+  content: "";
+  @apply absolute bottom-0 left-0 w-full h-[2px] bg-pnp-red opacity-10;
+}
+
+.theme-label {
+  @apply text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1.5 flex items-center gap-1.5;
+}
+
+.theme-label::before {
+  content: "";
+  @apply w-1 h-1 bg-pnp-red rounded-full;
+}
+
+.theme-input {
+  @apply w-full p-3 bg-white border border-slate-300 text-sm rounded shadow-sm focus:border-pnp-blue focus:ring-1 focus:ring-pnp-blue outline-none transition-all placeholder:text-slate-400;
+}
+
+/* Immersive Scrollbars */
+::-webkit-scrollbar {
+  @apply w-1 h-1;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-pnp-blue/20 rounded-full hover:bg-pnp-blue/40 transition-colors;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #002D6233 #f1f5f9;
+}

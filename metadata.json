@@ -1,0 +1,8 @@
+{
+  "name": "PNP Retirement Benefits Calculator (PRBS)",
+  "description": "The official-style estimate tool for PNP personnel. Calculate monthly pension, 36-month lump sum, and terminal leave pay using the latest 2026-2028 salary tranches and RA 6975 standards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
