@@ -87,9 +87,12 @@ export default function App() {
     return dateDiff(start, end);
   }, [inputMode, manualYears, manualMonths, entranceDate, effectiveRetirementDate]);
 
-  const maxLeaveCredits = useMemo(() => {
-    return Math.max(0, serviceDuration.years * RETIREMENT_CONSTANTS.LEAVE_DAYS_PER_YEAR);
-  }, [serviceDuration.years]);
+  const accruedLeaveCredits = useMemo(() => {
+    const { years, months, days } = serviceDuration;
+    // Years x 30, Months x 2.5, Days x 0.08
+    const total = (years * 30) + (months * 2.5) + (days * 0.08);
+    return Math.max(0, Number(total.toFixed(3)));
+  }, [serviceDuration]);
 
   const currentRank = useMemo(() => 
     PNP_RANKS.find(r => r.id === currentRankId) || PNP_RANKS[0], 
@@ -141,7 +144,7 @@ export default function App() {
     const monthlyPension = serviceDuration.years >= 20 ? totalPensionableBase * pensionPercentage : 0;
     const lumpSum36Months = monthlyPension * 36;
     
-    const terminalLeavePay = totalPensionableBase * Math.min(leaveVal, maxLeaveCredits) * 0.0481927;
+    const terminalLeavePay = totalPensionableBase * Math.min(leaveVal, accruedLeaveCredits) * 0.0481927;
     const totalRetirementPackage = lumpSum36Months + terminalLeavePay;
 
     return {
@@ -159,9 +162,10 @@ export default function App() {
       terminalLeavePay,
       totalRetirementPackage,
       isQualified: serviceDuration.years >= 20,
-      fractionalYears: fractionalYears.toFixed(4)
+      fractionalYears: fractionalYears.toFixed(4),
+      accruedLeaveCredits
     };
-  }, [inputMode, manualRetYear, nextRank, serviceDuration, leaveCredits, effectiveRetirementDate, maxLeaveCredits]);
+  }, [inputMode, manualRetYear, nextRank, serviceDuration, leaveCredits, effectiveRetirementDate, accruedLeaveCredits]);
 
   const formatCurrency = (amt: number) => 
     new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amt);
@@ -483,20 +487,29 @@ export default function App() {
               )}
 
               <div className="space-y-1 md:col-span-2">
-                <label className="theme-label">Accrued Leave Credits (Days)</label>
+                <div className="flex justify-between items-end mb-1">
+                  <label className="theme-label mb-0">Accrued Leave Credits (Days)</label>
+                  <button 
+                    onClick={() => setLeaveCredits(accruedLeaveCredits)}
+                    className="text-[9px] font-black text-pnp-blue hover:text-pnp-red transition-colors underline decoration-pnp-gold decoration-2 underline-offset-2 cursor-pointer"
+                  >
+                    Auto-Applied Formula
+                  </button>
+                </div>
                 <div className="relative">
                   <input 
                     type="number"
+                    step="0.01"
                     value={leaveCredits}
                     onFocus={(e) => e.target.select()}
                     onChange={(e) => {
                       const val = e.target.value;
-                      setLeaveCredits(val === '' ? '' : Math.min(maxLeaveCredits, Math.max(0, parseInt(val) || 0)));
+                      setLeaveCredits(val === '' ? '' : Math.min(accruedLeaveCredits, Math.max(0, parseFloat(val) || 0)));
                     }}
                     className="theme-input pr-24 font-mono font-bold"
                     placeholder="e.g. 300"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">MAX: {maxLeaveCredits} DAYS</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">MAX: {accruedLeaveCredits}</span>
                 </div>
               </div>
             </div>
